@@ -1,8 +1,10 @@
-import pyperclip
 import re
-import time
 import threading
+import time
+
 from colorama import Fore, Style, init
+from caseconverter import snakecase
+import pyperclip
 
 init()
 
@@ -11,9 +13,9 @@ def main():
         title = input(Fore.CYAN + "Enter a title: " + Style.RESET_ALL)
         # Remove extra whitespaces
         title = re.sub(r'\s+', ' ', title).strip()
-        # Format as filename: lowercase, replace spaces with _, remove invalid chars
-        formatted_title = re.sub(r'[^\w\s-]', '', title)  # remove special chars except - and _
-        formatted_title = re.sub(r'\s+', '_', formatted_title).lower()
+        # Format as filename: remove invalid chars, then convert to snake_case
+        cleaned_title = re.sub(r'[^\w\s-]', '', title)
+        formatted_title = snakecase(cleaned_title)
         pyperclip.copy(formatted_title)
         print(Fore.GREEN + "Formatted Title:", formatted_title + Style.RESET_ALL)
         print()
