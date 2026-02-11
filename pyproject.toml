@@ -1,0 +1,11 @@
+[project]
+name = "utilities"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pyperclip>=1.11.0",
+    "colorama>=0.4.6",
+    "aioconsole>=0.8.2",
+]
