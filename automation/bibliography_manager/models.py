@@ -20,6 +20,9 @@ class Article(BaseModel):
     year: Optional[int] = None
     venue: str = ""
     abstract: str = ""
+    crossref_url: str = ""
+    google_scholar_url: str = ""
+    ieee_url: str = ""
     pdf_url: str = ""
     local_path: str = ""
     accessed_date: Optional[date] = None
