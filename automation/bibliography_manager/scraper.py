@@ -36,16 +36,17 @@ DOI_REGEX = re.compile(r"10\.\d{4,9}/[^\s<>\"{}|\\^`]+", re.IGNORECASE)
 _FRAC_RE = re.compile(r"(\d+)/(\d+)")
 _UNSAFE_PATH_CHARS = re.compile(r"[\\/:*?\"<>|\s]+")
 
-# IEEE robots.txt specifies Crawl-delay: 10.  We honour a slightly
-# shorter delay (5 s) since we make very few requests per session —
-# well within fair-use for academic research.
-_IEEE_CRAWL_DELAY: float = 5.0
+# IEEE robots.txt specifies Crawl-delay: 10.  We fully honour it.
+_IEEE_CRAWL_DELAY: float = 10.0
 
 # Directory for debug artefacts (HTML dumps)
 _DEBUG_DIR = Path("datalake/debug")
 
 # PDF download directory (relative; resolved at runtime)
 _DEFAULT_PDF_DIR = Path("bibliography/pdfs")
+
+# HTTP User-Agent for polite crawling
+_USER_AGENT = "BibManager/1.0 (mailto:student@example.com)"
 
 # Link-text constants (avoids S1192 duplication warnings)
 _LT_CROSSREF = "crossref"
@@ -683,7 +684,7 @@ async def _enrich_from_crossref(
     enriched = 0
     async with httpx.AsyncClient(
         timeout=20,
-        headers={"User-Agent": "BibManager/1.0 (mailto:student@example.com)"},
+        headers={"User-Agent": _USER_AGENT},
     ) as client:
         for i, art in enumerate(enrichable, start=1):
             enriched += await _enrich_one_article(client, art)
@@ -738,7 +739,7 @@ async def _download_pdfs(
     async with httpx.AsyncClient(
         timeout=60,
         follow_redirects=True,
-        headers={"User-Agent": "BibManager/1.0 (mailto:student@example.com)"},
+        headers={"User-Agent": _USER_AGENT},
     ) as client:
         for i, art in enumerate(to_dl, start=1):
             if await _download_single_pdf(client, art, pdf_dir):
@@ -805,6 +806,34 @@ async def _try_semantic_scholar(
         if progress:
             await progress(f"API failed ({exc}), falling back to scraper...")
     return None
+
+
+async def fetch_ieee_title(url: str) -> str:
+    """Fetch the title of an IEEE document page via lightweight HTTP GET.
+
+    Returns the cleaned title string, or empty string on failure.
+    """
+    _validate_source_url(url)
+    try:
+        async with httpx.AsyncClient(
+            timeout=15,
+            follow_redirects=True,
+            headers={"User-Agent": _USER_AGENT},
+        ) as client:
+            resp = await client.get(url)
+            if resp.status_code == 200:
+                m = re.search(
+                    r"<title>\s*(.*?)\s*</title>", resp.text,
+                    re.IGNORECASE | re.DOTALL,
+                )
+                if m:
+                    raw = html_mod.unescape(m.group(1))
+                    # Strip " | IEEE Journals & Magazine | IEEE Xplore" suffix
+                    raw = re.split(r"\s*\|\s*IEEE\b", raw, maxsplit=1)[0]
+                    return raw.strip()
+    except Exception:
+        pass
+    return ""
 
 
 async def fetch_references(

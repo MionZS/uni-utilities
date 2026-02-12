@@ -14,6 +14,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+import httpx
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -31,13 +32,18 @@ from textual.widgets import (
     Static,
 )
 
+from caseconverter import snakecase
+from urllib.parse import urlparse, parse_qs
+
 from .models import Article, Bibliography, Survey
 from . import storage
-from .scraper import fetch_references
+from .scraper import fetch_ieee_title, fetch_references
 
 # ── Constants ────────────────────────────────────────────────
 
 _FRAC_RE = re.compile(r"(\d+)/(\d+)")
+_MSG_SURVEY_NOT_FOUND = "Survey not found"
+_IEEE_DELAY_RENAME: float = 10.0  # respect IEEE robots.txt crawl-delay
 
 # ── Utility ──────────────────────────────────────────────────
 
@@ -311,19 +317,50 @@ class FetchProgressModal(ModalScreen[None]):
                 progress_callback=dispatcher,
             )
             self._merge_results(refs, log)
+            # Rename survey to snake_case of its IEEE title
+            await self._update_survey_name(log)
         except Exception as exc:
             log.write_line(f"\n\u2717 Error: {exc}")
             self._set_phase("\u2717 Failed")
 
         btn.disabled = False
 
+    async def _update_survey_name(self, log: Log) -> None:
+        """Fetch the survey's own title from IEEE and rename to snake_case."""
+        source = self._survey.source
+        if not source.startswith("http"):
+            return
+        try:
+            title = await fetch_ieee_title(source)
+            if title:
+                new_name = _to_snake_name(title)
+                if new_name:
+                    self._survey.name = new_name
+                    bib = storage.load(self._bib_path)
+                    existing = bib.find_survey(self._survey.id)
+                    if existing:
+                        existing.name = new_name
+                    storage.save(bib, self._bib_path)
+                    log.write_line(f"  Survey renamed \u2192 {new_name}")
+        except Exception as exc:
+            log.write_line(f"  Could not fetch survey title: {exc}")
+
     def _merge_results(self, refs: list[Article], log: Log) -> None:
-        """Merge fetched articles into the survey and save."""
-        added, skipped = 0, 0
+        """Merge fetched articles into the survey and save.
+
+        Unresolved articles (no DOI) are kept with whatever metadata
+        the scraper could extract so the user can search manually.
+        """
+        added, skipped_dup = 0, 0
         for art in refs:
-            if art.doi.startswith("UNRESOLVED"):
-                skipped += 1
-            elif not self._survey.has_doi(art.doi):
+            # De-dup key: real DOI or title-based fallback for unresolved
+            key = art.doi.lower()
+            already = any(
+                a.doi.lower() == key for a in self._survey.articles
+            )
+            if already:
+                skipped_dup += 1
+            else:
                 self._survey.articles.append(art)
                 added += 1
 
@@ -339,13 +376,15 @@ class FetchProgressModal(ModalScreen[None]):
         storage.save(bib, self._bib_path)
 
         with_doi = sum(1 for r in refs if not r.doi.startswith("UNRESOLVED"))
+        unresolved = len(refs) - with_doi
         self._set_phase("\u2713 Complete")
         self._set_counter(
-            f"{added} new articles added | {with_doi} DOIs resolved | {skipped} unresolved"
+            f"{added} new | {with_doi} DOIs | {unresolved} unresolved (kept) | "
+            f"{skipped_dup} duplicates"
         )
         log.write_line(
             f"\n\u2713 Done \u2014 {added} new, {with_doi}/{len(refs)} with DOI, "
-            f"{skipped} unresolved"
+            f"{unresolved} unresolved (saved with title), {skipped_dup} duplicates"
         )
 
     @on(Button.Pressed, "#btn-close")
@@ -394,6 +433,273 @@ class CompletenessModal(ModalScreen[None]):
             f"  Missing PDF path: {missing_pdf}\n"
             f"  Incomplete metadata: {incomplete}\n"
         )
+
+    @on(Button.Pressed, "#btn-close")
+    def _on_close(self) -> None:
+        self.dismiss(None)
+
+    def action_close_modal(self) -> None:
+        self.dismiss(None)
+
+
+# ── TXT Import Modal ────────────────────────────────────────
+
+
+_INPUT_DIR = Path("input")
+
+
+class ImportTxtModal(ModalScreen[list[dict[str, str]] | None]):
+    """Let the user pick a .txt file from the input/ folder and import surveys."""
+
+    BINDINGS = [Binding("escape", "cancel", "Cancel")]
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="modal-dialog"):
+            yield Label("Import Surveys from TXT", id="modal-title")
+            yield Label("Select a file from the input/ folder:")
+            yield VerticalScroll(id="report-scroll")
+            yield Button("Cancel", id="btn-cancel")
+
+    def on_mount(self) -> None:
+        container = self.query_one("#report-scroll", VerticalScroll)
+        _INPUT_DIR.mkdir(parents=True, exist_ok=True)
+        txt_files = sorted(_INPUT_DIR.glob("*.txt"))
+        if not txt_files:
+            container.mount(
+                Label("No .txt files found in input/ folder.\n"
+                      "Create a text file with one URL or DOI per line.")
+            )
+            return
+        for f in txt_files:
+            btn_id = f"pick-file-{f.stem}"
+            line_count = sum(
+                1 for line in f.read_text(encoding="utf-8", errors="replace").splitlines()
+                if line.strip() and not line.strip().startswith("#")
+            )
+            container.mount(
+                Button(
+                    f"{f.name} ({line_count} entries)",
+                    id=btn_id,
+                    classes="survey-pick-btn",
+                )
+            )
+
+    @on(Button.Pressed, ".survey-pick-btn")
+    def _on_pick(self, event: Button.Pressed) -> None:
+        btn_id = event.button.id or ""
+        stem = btn_id.removeprefix("pick-file-")
+        path = _INPUT_DIR / f"{stem}.txt"
+        if not path.exists():
+            self.dismiss(None)
+            return
+        entries = _parse_txt_file(path)
+        self.dismiss(entries)
+
+    @on(Button.Pressed, "#btn-cancel")
+    def _on_cancel(self) -> None:
+        self.dismiss(None)
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
+
+
+def _parse_txt_file(path: Path) -> list[dict[str, str]]:
+    """Parse a TXT file, classifying URLs and deduplicating by document ID.
+
+    Each entry dict has keys: source, name, pdf_url, doc_id, type.
+    """
+    seen: dict[str, dict[str, str]] = {}  # doc_id → entry
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        info = _classify_ieee_url(stripped)
+        doc_id = info["doc_id"]
+        if doc_id in seen:
+            # Merge: prefer a pdf_url if this duplicate provides one
+            if info["pdf_url"] and not seen[doc_id].get("pdf_url"):
+                seen[doc_id]["pdf_url"] = info["pdf_url"]
+            continue
+        seen[doc_id] = {
+            "source": info["canonical_url"],
+            "name": f"ieee_{doc_id}",
+            "pdf_url": info["pdf_url"],
+            "doc_id": doc_id,
+            "type": info["type"],
+        }
+    return list(seen.values())
+
+
+def _classify_ieee_url(url: str) -> dict[str, str]:
+    """Classify an IEEE URL into document / stamp / direct-PDF."""
+    parsed = urlparse(url)
+    path = parsed.path
+
+    # Direct PDF: /ielx7/.../XXXXXXXX.pdf?arnumber=...
+    if path.endswith(".pdf"):
+        qs = parse_qs(parsed.query)
+        arnumber = qs.get("arnumber", [""])[0]
+        if arnumber:
+            return {
+                "type": "pdf",
+                "doc_id": arnumber,
+                "canonical_url": f"https://ieeexplore.ieee.org/document/{arnumber}",
+                "pdf_url": url,
+            }
+
+    # Stamp viewer: /stamp/stamp.jsp?...arnumber=...
+    if "/stamp/" in path:
+        qs = parse_qs(parsed.query)
+        arnumber = qs.get("arnumber", [""])[0]
+        if arnumber:
+            return {
+                "type": "pdf",
+                "doc_id": arnumber,
+                "canonical_url": f"https://ieeexplore.ieee.org/document/{arnumber}",
+                "pdf_url": url,
+            }
+
+    # Standard document URL: /document/XXXXX
+    if "/document/" in path:
+        doc_id = path.rstrip("/").rsplit("/document/", 1)[-1]
+        return {
+            "type": "survey",
+            "doc_id": doc_id,
+            "canonical_url": url,
+            "pdf_url": "",
+        }
+
+    # DOI string
+    if url.startswith("10."):
+        return {
+            "type": "survey",
+            "doc_id": url[:30],
+            "canonical_url": url,
+            "pdf_url": "",
+        }
+
+    # Unknown format — treat as survey
+    return {
+        "type": "survey",
+        "doc_id": url[:40],
+        "canonical_url": url,
+        "pdf_url": "",
+    }
+
+
+def _to_snake_name(title: str) -> str:
+    """Convert a paper title to a snake_case filename-safe string."""
+    if not title:
+        return ""
+    cleaned = re.sub(r"\s+", " ", title).strip()
+    cleaned = re.sub(r"[^\w\s-]", "", cleaned)
+    return snakecase(cleaned)
+
+
+# ── PDF Download Progress Modal ─────────────────────────────
+
+
+class PDFDownloadModal(ModalScreen[None]):
+    """Downloads PDFs for articles that have a pdf_url but no local_path."""
+
+    BINDINGS = [Binding("escape", "close_modal", "Close")]
+
+    def __init__(self, survey: Survey, bib_path: Path, **kw: Any) -> None:
+        super().__init__(**kw)
+        self._survey = survey
+        self._bib_path = bib_path
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="modal-dialog"):
+            yield Label(
+                f"Downloading PDFs — {self._survey.name or self._survey.source}",
+                id="modal-title",
+            )
+            yield Label("Starting…", id="phase-label")
+            yield ProgressBar(total=100, id="fetch-progress")
+            yield Label("", id="counter-label")
+            yield Log(id="fetch-log", max_lines=300)
+            yield Button("Close", id="btn-close", disabled=True)
+
+    def on_mount(self) -> None:
+        self._run_download()
+
+    def _set_phase(self, text: str) -> None:
+        try:
+            self.query_one("#phase-label", Label).update(text)
+        except Exception:
+            pass
+
+    def _set_counter(self, text: str) -> None:
+        try:
+            self.query_one("#counter-label", Label).update(text)
+        except Exception:
+            pass
+
+    @work(exclusive=True)
+    async def _run_download(self) -> None:
+        log = self.query_one("#fetch-log", Log)
+        bar = self.query_one("#fetch-progress", ProgressBar)
+        btn = self.query_one("#btn-close", Button)
+
+        to_dl = [
+            a for a in self._survey.articles
+            if a.pdf_url and not a.local_path
+        ]
+
+        if not to_dl:
+            log.write_line("No articles with downloadable PDF URLs (without local copy).")
+            self._set_phase("Nothing to download")
+            btn.disabled = False
+            return
+
+        bar.update(total=len(to_dl), progress=0)
+        self._set_phase(f"Downloading {len(to_dl)} PDFs…")
+
+        pdf_dir = Path("bibliography/pdfs")
+        pdf_dir.mkdir(parents=True, exist_ok=True)
+
+        downloaded = 0
+        async with httpx.AsyncClient(
+            timeout=60,
+            follow_redirects=True,
+            headers={"User-Agent": "BibManager/1.0 (mailto:student@example.com)"},
+        ) as client:
+            for i, art in enumerate(to_dl, start=1):
+                title_short = (art.title or art.doi)[:50]
+                try:
+                    resp = await client.get(art.pdf_url)
+                    if resp.status_code == 200:
+                        ct = (resp.headers.get("content-type") or "").lower()
+                        ext = ".pdf" if "pdf" in ct else ".bin"
+                        from .scraper import _safe_filename
+                        dest = pdf_dir / f"{_safe_filename(art.doi)}{ext}"
+                        dest.write_bytes(resp.content)
+                        art.local_path = str(dest)
+                        downloaded += 1
+                        log.write_line(f"  ✓ [{i}/{len(to_dl)}] {title_short}")
+                    else:
+                        log.write_line(
+                            f"  ✗ [{i}/{len(to_dl)}] {title_short} "
+                            f"— HTTP {resp.status_code}"
+                        )
+                except Exception as exc:
+                    log.write_line(f"  ✗ [{i}/{len(to_dl)}] {title_short} — {exc}")
+
+                bar.update(progress=i)
+                self._set_counter(f"{downloaded}/{i} downloaded")
+                await asyncio.sleep(0.1)
+
+        # Save updated local_path values
+        bib = storage.load(self._bib_path)
+        existing = bib.find_survey(self._survey.id)
+        if existing:
+            existing.articles = self._survey.articles
+        storage.save(bib, self._bib_path)
+
+        self._set_phase(f"✓ Downloaded {downloaded}/{len(to_dl)} PDFs")
+        log.write_line(f"\n✓ Done — {downloaded}/{len(to_dl)} PDFs saved to {pdf_dir}")
+        btn.disabled = False
 
     @on(Button.Pressed, "#btn-close")
     def _on_close(self) -> None:
@@ -460,14 +766,20 @@ class ArticleListScreen(ModalScreen[None]):
 
     def on_mount(self) -> None:
         table = self.query_one("#article-table", DataTable)
-        table.add_columns("#", "DOI", "Title", "Authors", "Year")
+        table.add_columns("#", "DOI", "Title", "Authors", "Year", "PDF")
         for i, art in enumerate(self._survey.articles, start=1):
+            doi_display = (
+                "⚠ no DOI" if art.doi.startswith("UNRESOLVED") else
+                _truncate(art.doi, 30)
+            )
+            pdf_status = _pdf_status_icon(art)
             table.add_row(
                 str(i),
-                _truncate(art.doi, 30),
-                _truncate(art.title, 60),
+                doi_display,
+                _truncate(art.title, 55),
                 _format_authors(art.authors),
-                str(art.year or "\u2014"),
+                str(art.year or "—"),
+                pdf_status,
             )
 
     @on(Button.Pressed, "#btn-close")
@@ -487,6 +799,15 @@ def _format_authors(authors: list[str]) -> str:
     if len(authors) > 3:
         result += " et al."
     return result
+
+
+def _pdf_status_icon(art: Article) -> str:
+    """Return a single-char icon for the article's PDF state."""
+    if art.local_path:
+        return "✓"
+    if art.pdf_url:
+        return "⬇"
+    return "—"
 
 
 # ── Main App ─────────────────────────────────────────────────
@@ -542,13 +863,18 @@ class BibliographyApp(App[None]):
     #button-bar {
         dock: bottom;
         height: auto;
-        max-height: 3;
+        max-height: 10;
+        margin-bottom: 1;
         padding: 0 1;
+        layout: grid;
+        grid-size: 5 3;
+        grid-gutter: 0 1;
     }
 
     #button-bar Button {
-        margin: 0 1;
-        min-width: 10;
+        width: 100%;
+        height: 3;
+        min-width: 14;
     }
 
     /* ── modals ──────────────────────────────── */
@@ -600,11 +926,15 @@ class BibliographyApp(App[None]):
     """
 
     BINDINGS = [
-        Binding("f", "fetch", "Fetch Refs"),
+        Binding("f", "fetch", "Fetch Meta"),
+        Binding("d", "download_pdfs", "Download PDFs"),
         Binding("a", "add_survey", "Add Survey"),
+        Binding("i", "import_txt", "Import TXT"),
         Binding("v", "view_articles", "View Articles"),
         Binding("c", "check", "Completeness"),
         Binding("e", "edit_json", "Edit JSON"),
+        Binding("n", "rename_surveys", "Rename Snake"),
+        Binding("x", "clear_surveys", "Clear All"),
         Binding("r", "refresh", "Refresh"),
         Binding("q", "quit", "Quit"),
     ]
@@ -629,13 +959,16 @@ class BibliographyApp(App[None]):
                 yield StatsCard("With PDF", id="stat-pdfs")
             yield DataTable(id="survey-table")
         with Horizontal(id="button-bar"):
-            yield Button("[F]etch", id="btn-fetch", variant="primary")
-            yield Button("[A]dd", id="btn-add-survey")
-            yield Button("[V]iew", id="btn-view-articles")
-            yield Button("[C]heck", id="btn-check")
-            yield Button("[E]dit", id="btn-edit")
-            yield Button("[R]efresh", id="btn-refresh")
-            yield Button("[Q]uit", id="btn-quit", variant="error")
+            yield Button("Fetch Meta", id="btn-fetch", variant="primary")
+            yield Button("Download PDFs", id="btn-download")
+            yield Button("Add Survey", id="btn-add-survey")
+            yield Button("Import TXT", id="btn-import-txt")
+            yield Button("View Articles", id="btn-view-articles")
+            yield Button("Completeness", id="btn-check")
+            yield Button("Edit JSON", id="btn-edit")
+            yield Button("Rename Snake", id="btn-rename")
+            yield Button("Refresh", id="btn-refresh")
+            yield Button("Quit", id="btn-quit", variant="error")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -722,6 +1055,117 @@ class BibliographyApp(App[None]):
     def action_check(self) -> None:
         self.push_screen(CompletenessModal(self.bib))
 
+    def action_download_pdfs(self) -> None:
+        self._pick_survey_then(self._start_download)
+
+    def action_import_txt(self) -> None:
+        self.push_screen(ImportTxtModal(), callback=self._on_txt_imported)
+
+    def _on_txt_imported(self, entries: list[dict[str, str]] | None) -> None:
+        """Add surveys from the parsed TXT file with deduplication."""
+        if not entries:
+            return
+        added, skipped = 0, 0
+        pdf_queue: list[dict[str, str]] = []
+        for entry in entries:
+            source = entry["source"]
+            name = entry.get("name", "")
+            if self.bib.find_survey(source):
+                skipped += 1
+                continue
+            survey = Survey(
+                id=source, name=name, source=source, date_added=date.today(),
+            )
+            self.bib.surveys.append(survey)
+            added += 1
+            if entry.get("pdf_url"):
+                pdf_queue.append({
+                    "survey_id": source,
+                    "pdf_url": entry["pdf_url"],
+                    "doc_id": entry.get("doc_id", ""),
+                })
+        if added:
+            storage.save(self.bib, self.bib_path)
+            self._refresh_dashboard()
+        msg = f"Imported {added} surveys ({skipped} duplicates skipped)"
+        if pdf_queue:
+            msg += f", downloading {len(pdf_queue)} PDFs\u2026"
+        self.notify(msg, severity="information" if added else "warning")
+        if pdf_queue:
+            self._download_import_pdfs(pdf_queue)
+
+    @work(exclusive=True)
+    async def _download_import_pdfs(self, entries: list[dict[str, str]]) -> None:
+        """Download PDFs from direct/stamp URLs identified during TXT import."""
+        from .scraper import _safe_filename
+
+        pdf_dir = Path("bibliography/pdfs")
+        pdf_dir.mkdir(parents=True, exist_ok=True)
+        downloaded = 0
+        async with httpx.AsyncClient(
+            timeout=60,
+            follow_redirects=True,
+            headers={"User-Agent": "BibManager/1.0 (mailto:student@example.com)"},
+        ) as client:
+            for entry in entries:
+                try:
+                    resp = await client.get(entry["pdf_url"])
+                    if resp.status_code == 200:
+                        ct = (resp.headers.get("content-type") or "").lower()
+                        ext = ".pdf" if "pdf" in ct else ".bin"
+                        dest = pdf_dir / f"survey_{_safe_filename(entry['doc_id'])}{ext}"
+                        dest.write_bytes(resp.content)
+                        survey = self.bib.find_survey(entry["survey_id"])
+                        if survey:
+                            survey.local_path = str(dest)
+                        downloaded += 1
+                except Exception:
+                    pass
+                await asyncio.sleep(0.5)
+        if downloaded:
+            storage.save(self.bib, self.bib_path)
+            self._refresh_dashboard()
+        self.notify(
+            f"Downloaded {downloaded}/{len(entries)} survey PDFs",
+            severity="information",
+        )
+
+    def action_rename_surveys(self) -> None:
+        """Rename all surveys to snake_case based on their IEEE page titles."""
+        self._do_rename_surveys()
+
+    def action_clear_surveys(self) -> None:
+        """Delete all surveys from the bibliography for fresh reimport."""
+        if not self.bib.surveys:
+            self.notify("No surveys to delete", severity="warning")
+            return
+        count = len(self.bib.surveys)
+        self.bib.surveys.clear()
+        storage.save(self.bib, self.bib_path)
+        self._refresh_dashboard()
+        self.notify(f"Deleted {count} surveys — ready for reimport", severity="information")
+
+    @work(exclusive=True)
+    async def _do_rename_surveys(self) -> None:
+        renamed = 0
+        for survey in self.bib.surveys:
+            if not survey.source.startswith("http"):
+                continue
+            try:
+                title = await fetch_ieee_title(survey.source)
+                if title:
+                    new_name = _to_snake_name(title)
+                    if new_name and new_name != survey.name:
+                        survey.name = new_name
+                        renamed += 1
+                await asyncio.sleep(_IEEE_DELAY_RENAME)
+            except Exception:
+                pass
+        if renamed:
+            storage.save(self.bib, self.bib_path)
+            self._refresh_dashboard()
+        self.notify(f"Renamed {renamed} surveys to snake_case", severity="information")
+
     # ── survey picking helpers ───────────────────────────────
 
     def _pick_survey_then(self, callback: Any) -> None:
@@ -740,17 +1184,31 @@ class BibliographyApp(App[None]):
     def _start_fetch(self, survey_id: str) -> None:
         survey = self.bib.find_survey(survey_id)
         if not survey:
-            self.notify("Survey not found", severity="error")
+            self.notify(_MSG_SURVEY_NOT_FOUND, severity="error")
             return
         self.push_screen(
             FetchProgressModal(survey, self.bib_path),
             callback=lambda _: self._refresh_dashboard(),
         )
 
+    def _start_download(self, survey_id: str) -> None:
+        survey = self.bib.find_survey(survey_id)
+        if not survey:
+            self.notify(_MSG_SURVEY_NOT_FOUND, severity="error")
+            return
+        downloadable = [a for a in survey.articles if a.pdf_url and not a.local_path]
+        if not downloadable:
+            self.notify("No downloadable PDFs for this survey", severity="warning")
+            return
+        self.push_screen(
+            PDFDownloadModal(survey, self.bib_path),
+            callback=lambda _: self._refresh_dashboard(),
+        )
+
     def _show_articles(self, survey_id: str) -> None:
         survey = self.bib.find_survey(survey_id)
         if not survey:
-            self.notify("Survey not found", severity="error")
+            self.notify(_MSG_SURVEY_NOT_FOUND, severity="error")
             return
         if not survey.articles:
             self.notify("No articles fetched yet", severity="warning")
@@ -763,9 +1221,17 @@ class BibliographyApp(App[None]):
     def _btn_fetch(self) -> None:
         self.action_fetch()
 
+    @on(Button.Pressed, "#btn-download")
+    def _btn_download(self) -> None:
+        self.action_download_pdfs()
+
     @on(Button.Pressed, "#btn-add-survey")
     def _btn_add(self) -> None:
         self.action_add_survey()
+
+    @on(Button.Pressed, "#btn-import-txt")
+    def _btn_import_txt(self) -> None:
+        self.action_import_txt()
 
     @on(Button.Pressed, "#btn-view-articles")
     def _btn_view_articles(self) -> None:
@@ -782,6 +1248,10 @@ class BibliographyApp(App[None]):
     @on(Button.Pressed, "#btn-refresh")
     def _btn_refresh(self) -> None:
         self.action_refresh()
+
+    @on(Button.Pressed, "#btn-rename")
+    def _btn_rename(self) -> None:
+        self.action_rename_surveys()
 
     @on(Button.Pressed, "#btn-quit")
     def _btn_quit(self) -> None:

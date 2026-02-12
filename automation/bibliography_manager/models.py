@@ -40,6 +40,7 @@ class Survey(BaseModel):
     date_added: date = Field(default_factory=date.today)
     total_references_expected: int = 0
     relevance_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    local_path: str = ""
     articles: list[Article] = Field(default_factory=list)
 
     # ── helpers ────────────────────────────────────────────────

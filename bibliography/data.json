@@ -14,6 +14,7 @@
       "date_added": "2026-02-12",
       "total_references_expected": 30,
       "relevance_score": 0.0,
+      "local_path": "",
       "articles": [
         {
           "doi": "10.3390/su14052546",
@@ -637,6 +638,406 @@
           "manually_edited": false
         }
       ]
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10719361",
+      "name": "ieee_10719361",
+      "source": "https://ieeexplore.ieee.org/document/10719361",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/6225715",
+      "name": "ieee_6225715",
+      "source": "https://ieeexplore.ieee.org/document/6225715",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/8984489",
+      "name": "ieee_8984489",
+      "source": "https://ieeexplore.ieee.org/document/8984489",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/9087677",
+      "name": "ieee_9087677",
+      "source": "https://ieeexplore.ieee.org/document/9087677",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/6099519",
+      "name": "ieee_6099519",
+      "source": "https://ieeexplore.ieee.org/document/6099519",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/9551027",
+      "name": "ieee_9551027",
+      "source": "https://ieeexplore.ieee.org/document/9551027",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10599403",
+      "name": "ieee_10599403",
+      "source": "https://ieeexplore.ieee.org/document/10599403",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/8079528",
+      "name": "ieee_8079528",
+      "source": "https://ieeexplore.ieee.org/document/8079528",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/6873893",
+      "name": "ieee_6873893",
+      "source": "https://ieeexplore.ieee.org/document/6873893",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/8975875",
+      "name": "ieee_8975875",
+      "source": "https://ieeexplore.ieee.org/document/8975875",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/7005601",
+      "name": "ieee_7005601",
+      "source": "https://ieeexplore.ieee.org/document/7005601",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/6707914",
+      "name": "ieee_6707914",
+      "source": "https://ieeexplore.ieee.org/document/6707914",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/9375569",
+      "name": "ieee_9375569",
+      "source": "https://ieeexplore.ieee.org/document/9375569",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/6083192",
+      "name": "ieee_6083192",
+      "source": "https://ieeexplore.ieee.org/document/6083192",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10077659",
+      "name": "ieee_10077659",
+      "source": "https://ieeexplore.ieee.org/document/10077659",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/9285206",
+      "name": "ieee_9285206",
+      "source": "https://ieeexplore.ieee.org/document/9285206",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "bibliography\\pdfs\\survey_9285206.bin",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/6096962",
+      "name": "ieee_6096962",
+      "source": "https://ieeexplore.ieee.org/document/6096962",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10739495",
+      "name": "ieee_10739495",
+      "source": "https://ieeexplore.ieee.org/document/10739495",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/8559609",
+      "name": "ieee_8559609",
+      "source": "https://ieeexplore.ieee.org/document/8559609",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/9823928",
+      "name": "ieee_9823928",
+      "source": "https://ieeexplore.ieee.org/document/9823928",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/11075995",
+      "name": "ieee_11075995",
+      "source": "https://ieeexplore.ieee.org/document/11075995",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/5638893",
+      "name": "ieee_5638893",
+      "source": "https://ieeexplore.ieee.org/document/5638893",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/7028853",
+      "name": "ieee_7028853",
+      "source": "https://ieeexplore.ieee.org/document/7028853",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/6809180",
+      "name": "ieee_6809180",
+      "source": "https://ieeexplore.ieee.org/document/6809180",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/9423478",
+      "name": "ieee_9423478",
+      "source": "https://ieeexplore.ieee.org/document/9423478",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/9067351",
+      "name": "ieee_9067351",
+      "source": "https://ieeexplore.ieee.org/document/9067351",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/8676005",
+      "name": "ieee_8676005",
+      "source": "https://ieeexplore.ieee.org/document/8676005",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/7811522",
+      "name": "ieee_7811522",
+      "source": "https://ieeexplore.ieee.org/document/7811522",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10451299",
+      "name": "ieee_10451299",
+      "source": "https://ieeexplore.ieee.org/document/10451299",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/8777832",
+      "name": "ieee_8777832",
+      "source": "https://ieeexplore.ieee.org/document/8777832",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10241311",
+      "name": "ieee_10241311",
+      "source": "https://ieeexplore.ieee.org/document/10241311",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10584170",
+      "name": "ieee_10584170",
+      "source": "https://ieeexplore.ieee.org/document/10584170",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10363986",
+      "name": "ieee_10363986",
+      "source": "https://ieeexplore.ieee.org/document/10363986",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10457452",
+      "name": "ieee_10457452",
+      "source": "https://ieeexplore.ieee.org/document/10457452",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/6175628",
+      "name": "ieee_6175628",
+      "source": "https://ieeexplore.ieee.org/document/6175628",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/9202343",
+      "name": "ieee_9202343",
+      "source": "https://ieeexplore.ieee.org/document/9202343",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10404324",
+      "name": "ieee_10404324",
+      "source": "https://ieeexplore.ieee.org/document/10404324",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/6906508",
+      "name": "ieee_6906508",
+      "source": "https://ieeexplore.ieee.org/document/6906508",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/11063250",
+      "name": "ieee_11063250",
+      "source": "https://ieeexplore.ieee.org/document/11063250",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "bibliography\\pdfs\\survey_11063250.bin",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/8676311",
+      "name": "ieee_8676311",
+      "source": "https://ieeexplore.ieee.org/document/8676311",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "local_path": "",
+      "articles": []
     }
   ]
 }
