@@ -1,0 +1,23 @@
+{
+  "name": "Semantic Scholar — direct URL with DOI, no search box needed",
+  "urlPattern": "https://www.semanticscholar.org/search?q={doi}&sort=relevance",
+
+  "result": {
+    "waitForAny": [
+      "a:has-text('PDF')",
+      "a:has-text('View PDF')",
+      "[data-test-id='paper-link']"
+    ],
+    "timeoutMs": 15000
+  },
+
+  "download": {
+    "clickFirstMatching": [
+      "a:has-text('PDF')",
+      "a:has-text('View PDF')",
+      "button:has-text('Open')",
+      "a:has-text('Open')"
+    ],
+    "timeoutMs": 60000
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "title": "The Emerging Enernet: Convergence of the Smart Grid with the Internet of Things",
+    "authors": ["First Author", "Second Author"],
+    "date": "2020-01-01",
+    "originalUrl": "https://ieeexplore.ieee.org/document/7106311",
+    "comments": "Paste your real article URL here.",
+    "doi": null,
+    "downloadUrl": null
+  },
+  {
+    "title": "Sample DOI-only entry",
+    "authors": [],
+    "date": null,
+    "originalUrl": null,
+    "comments": "This entry is for testing DOI->target automation without needing to scrape a landing page.",
+    "doi": "10.1109/REPC.2015.24",
+    "downloadUrl": null
+  }
+]

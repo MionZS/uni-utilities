@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Playwright downloader outputs
+automation/playwright-doi-downloader/datalake/
+automation/playwright-doi-downloader/articles.with_doi.json
+*.pdf

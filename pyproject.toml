@@ -9,4 +9,5 @@ dependencies = [
     "colorama>=0.4.6",
     "aioconsole>=0.8.2",
     "case-converter>=1.2.0",
+    "playwright>=1.52.0",
 ]
