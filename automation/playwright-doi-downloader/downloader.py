@@ -125,6 +125,8 @@ async def run_post_submit_steps(page: Page, config: dict[str, Any]) -> None:
         desc = step.get("description", f"step {i}")
         raw_selectors = step.get("selectors", "")
         timeout_ms = step.get("timeoutMs", 10_000)
+        retries = step.get("retries", 1)
+        retry_delay_ms = step.get("retryDelayMs", 2000)
 
         selectors = [s.strip() for s in raw_selectors.split(",") if s.strip()]
         if not selectors:
@@ -133,19 +135,25 @@ async def run_post_submit_steps(page: Page, config: dict[str, Any]) -> None:
 
         print(f"  [postSubmit] {desc}")
         clicked = False
-        for sel in selectors:
-            try:
-                loc = page.locator(sel).first
-                await loc.wait_for(state="attached", timeout=timeout_ms)
-                await loc.click()
-                print(f"    matched: {sel}")
-                clicked = True
+        for attempt in range(1, retries + 1):
+            for sel in selectors:
+                try:
+                    loc = page.locator(sel).first
+                    await loc.wait_for(state="attached", timeout=timeout_ms)
+                    await loc.click()
+                    print(f"    matched: {sel}" + (f" (attempt {attempt})" if attempt > 1 else ""))
+                    clicked = True
+                    break
+                except Exception:
+                    continue
+            if clicked:
                 break
-            except Exception:
-                continue
+            if attempt < retries:
+                print(f"    retry {attempt}/{retries} — waiting {retry_delay_ms}ms...")
+                await page.wait_for_timeout(retry_delay_ms)
 
         if not clicked:
-            print(f"    (no selector matched for this step)")
+            print(f"    (no selector matched after {retries} attempt(s))")
             continue
 
         # Wait for navigation / network to settle after click

@@ -14,7 +14,9 @@
     {
       "description": "Click the 'Journal Articles' tab",
       "selectors": "a:has-text('Journal Articles'), button:has-text('Journal Articles')",
-      "timeoutMs": 10000
+      "timeoutMs": 5000,
+      "retries": 3,
+      "retryDelayMs": 2000
     },
     {
       "description": "Click the first result link",

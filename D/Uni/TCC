@@ -1,0 +1,20 @@
+{
+  "project": {
+    "title": "",
+    "author": "",
+    "abstract": "",
+    "keywords": [],
+    "my_article_doi": ""
+  },
+  "surveys": [
+    {
+      "id": "https://ieeexplore.ieee.org/document/10036268/references#references",
+      "name": "data_driven_methods_of_machine_learning_in_modeling_the_smart_grids",
+      "source": "https://ieeexplore.ieee.org/document/10036268/references#references",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "articles": []
+    }
+  ]
+}
