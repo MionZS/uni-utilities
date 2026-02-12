@@ -1,6 +1,27 @@
 {
-  "name": "Semantic Scholar — direct URL with DOI, no search box needed",
-  "urlPattern": "https://www.semanticscholar.org/search?q={doi}&sort=relevance",
+  "name": "Semantic Scholar — paste DOI into search box",
+  "targetUrl": "https://www.semanticscholar.org/",
+
+  "input": {
+    "selector": "input[type='text'], input[type='search'], input[name='q']"
+  },
+
+  "submit": {
+    "press": "Enter"
+  },
+
+  "postSubmitSteps": [
+    {
+      "description": "Click the 'Journal Articles' tab",
+      "selectors": "a:has-text('Journal Articles'), button:has-text('Journal Articles')",
+      "timeoutMs": 10000
+    },
+    {
+      "description": "Click the first result link",
+      "selectors": "a[data-test-id='paper-link'], .cl-paper-title a, h3 a, .result-title a",
+      "timeoutMs": 10000
+    }
+  ],
 
   "result": {
     "waitForAny": [

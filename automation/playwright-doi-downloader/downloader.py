@@ -115,6 +115,46 @@ async def paste_doi_into_target(page: Page, config: dict[str, Any], doi: str) ->
         await locator.first.press("Enter")
 
 
+async def run_post_submit_steps(page: Page, config: dict[str, Any]) -> None:
+    """Execute optional postSubmitSteps defined in the target config."""
+    steps = config.get("postSubmitSteps")
+    if not isinstance(steps, list) or not steps:
+        return
+
+    for i, step in enumerate(steps, start=1):
+        desc = step.get("description", f"step {i}")
+        raw_selectors = step.get("selectors", "")
+        timeout_ms = step.get("timeoutMs", 10_000)
+
+        selectors = [s.strip() for s in raw_selectors.split(",") if s.strip()]
+        if not selectors:
+            print(f"  [postSubmit] {desc}: no selectors, skipping")
+            continue
+
+        print(f"  [postSubmit] {desc}")
+        clicked = False
+        for sel in selectors:
+            try:
+                loc = page.locator(sel).first
+                await loc.wait_for(state="attached", timeout=timeout_ms)
+                await loc.click()
+                print(f"    matched: {sel}")
+                clicked = True
+                break
+            except Exception:
+                continue
+
+        if not clicked:
+            print(f"    (no selector matched for this step)")
+            continue
+
+        # Wait for navigation / network to settle after click
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=timeout_ms)
+        except Exception:
+            pass
+
+
 async def try_download_from_target(page: Page, config: dict[str, Any], doi: str, out_dir: Path) -> Path | None:
     result_cfg = config.get("result", {})
     if result_cfg is None:
@@ -448,8 +488,6 @@ async def run() -> int:
     target_page: Page | None = None
     if args.target_config:
         target_config = await load_target_config(args.target_config)
-        target_page = await ensure_target_page(page, target_config)
-        target_page.set_default_timeout(args.timeout_ms)
 
     doi_found = 0
     pdf_downloaded = 0
@@ -497,9 +535,15 @@ async def run() -> int:
                 print("  DOI: (not found)")
                 continue
 
-            if target_config and target_page:
+            if target_config:
                 try:
+                    if target_page is None:
+                        target_page = await ensure_target_page(page, target_config)
+                        target_page.set_default_timeout(args.timeout_ms)
+                    else:
+                        await target_page.goto(str(target_config["targetUrl"]), wait_until="domcontentloaded")
                     await paste_doi_into_target(target_page, target_config, doi)
+                    await run_post_submit_steps(target_page, target_config)
                     downloaded = await try_download_from_target(target_page, target_config, doi, out_dir)
                     if downloaded:
                         article["targetDownloadedPath"] = str(downloaded)
