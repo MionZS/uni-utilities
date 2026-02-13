@@ -39,6 +39,10 @@ _UNSAFE_PATH_CHARS = re.compile(r"[\\/:*?\"<>|\s]+")
 # IEEE robots.txt specifies Crawl-delay: 10.  We fully honour it.
 _IEEE_CRAWL_DELAY: float = 10.0
 
+# Google Scholar rate-limits aggressively after ~10 requests per minute
+# Use long delays to avoid 429 "Unusual traffic" blocks (applies to proxy/VPN users too)
+_GOOGLE_SCHOLAR_DELAY: float = 5.0
+
 # Directory for debug artefacts (HTML dumps)
 _DEBUG_DIR = Path("datalake/debug")
 
@@ -486,7 +490,11 @@ async def _resolve_doi_from_google_scholar(page: Page, url: str) -> str | None:
 
 
 async def _resolve_single_doi(page: Page, sk: _RefSkeleton) -> str | None:
-    """Try all link sources for a single skeleton, return DOI or None."""
+    """Try all link sources for a single skeleton, return DOI or None.
+    
+    Priority: Crossref > IEEE > Google Scholar (rarely needed).
+    Google Scholar is rate-limited (triggers 429 blocks), so avoided when possible.
+    """
     if sk.crossref_url:
         doi = await _resolve_doi_from_crossref_page(page, sk.crossref_url)
         if doi:
@@ -496,6 +504,8 @@ async def _resolve_single_doi(page: Page, sk: _RefSkeleton) -> str | None:
         if doi:
             return doi
     if sk.google_scholar_url:
+        # Google Scholar blocks after ~10 req/min. Add significant delay.
+        await asyncio.sleep(_GOOGLE_SCHOLAR_DELAY)
         return await _resolve_doi_from_google_scholar(page, sk.google_scholar_url)
     return None
 
@@ -813,27 +823,66 @@ async def fetch_ieee_title(url: str) -> str:
 
     Returns the cleaned title string, or empty string on failure.
     """
+    info = await fetch_ieee_meta(url)
+    return info.get("title", "")
+
+
+async def fetch_ieee_meta(url: str) -> dict[str, str]:
+    """Fetch title and DOI from an IEEE document page.
+
+    Returns dict with keys ``title`` and ``doi`` (either may be empty).
+    Raises RuntimeError on HTTP errors (rate limit, not found, timeout, etc.).
+    """
     _validate_source_url(url)
+    result: dict[str, str] = {"title": "", "doi": ""}
     try:
         async with httpx.AsyncClient(
-            timeout=15,
+            timeout=30,
             follow_redirects=True,
             headers={"User-Agent": _USER_AGENT},
         ) as client:
             resp = await client.get(url)
-            if resp.status_code == 200:
-                m = re.search(
-                    r"<title>\s*(.*?)\s*</title>", resp.text,
-                    re.IGNORECASE | re.DOTALL,
+            if resp.status_code != 200:
+                # Specific error messages for common status codes
+                if resp.status_code == 429:
+                    raise RuntimeError(f"HTTP 429 — rate limited, wait longer between requests")
+                elif resp.status_code == 404:
+                    raise RuntimeError(f"HTTP 404 — document not found")
+                elif resp.status_code == 403:
+                    raise RuntimeError(f"HTTP 403 — forbidden (access denied)")
+                else:
+                    raise RuntimeError(f"HTTP {resp.status_code}")
+            text = resp.text
+            # ── title ──
+            m = re.search(
+                r"<title>\s*(.*?)\s*</title>", text,
+                re.IGNORECASE | re.DOTALL,
+            )
+            if m:
+                raw = html_mod.unescape(m.group(1))
+                raw = re.split(r"\s*\|\s*IEEE\b", raw, maxsplit=1)[0]
+                result["title"] = raw.strip()
+            # ── DOI ──
+            doi_m = re.search(
+                r'"doi"\s*:\s*"(10\.\d{4,}/[^"]+)"', text,
+            )
+            if not doi_m:
+                doi_m = re.search(
+                    r'<a[^>]*href="https?://doi\.org/(10\.\d{4,}/[^"]+)"',
+                    text, re.IGNORECASE,
                 )
-                if m:
-                    raw = html_mod.unescape(m.group(1))
-                    # Strip " | IEEE Journals & Magazine | IEEE Xplore" suffix
-                    raw = re.split(r"\s*\|\s*IEEE\b", raw, maxsplit=1)[0]
-                    return raw.strip()
-    except Exception:
-        pass
-    return ""
+            if doi_m:
+                result["doi"] = doi_m.group(1)
+    except asyncio.TimeoutError:
+        raise RuntimeError("Timeout (30s) — IEEE page took too long to respond")
+    except httpx.ConnectError:
+        raise RuntimeError("Connection error — cannot reach IEEE")
+    except Exception as e:
+        # Re-raise known errors, wrap unknowns
+        if isinstance(e, RuntimeError):
+            raise
+        raise RuntimeError(f"Unexpected error: {type(e).__name__}: {e}")
+    return result
 
 
 async def fetch_references(

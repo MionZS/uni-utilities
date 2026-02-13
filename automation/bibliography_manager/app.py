@@ -37,13 +37,12 @@ from urllib.parse import urlparse, parse_qs
 
 from .models import Article, Bibliography, Survey
 from . import storage
-from .scraper import fetch_ieee_title, fetch_references
+from .scraper import fetch_ieee_meta, fetch_ieee_title, fetch_references
 
 # ── Constants ────────────────────────────────────────────────
 
 _FRAC_RE = re.compile(r"(\d+)/(\d+)")
 _MSG_SURVEY_NOT_FOUND = "Survey not found"
-_IEEE_DELAY_RENAME: float = 10.0  # respect IEEE robots.txt crawl-delay
 
 # ── Utility ──────────────────────────────────────────────────
 
@@ -269,10 +268,11 @@ class FetchProgressModal(ModalScreen[None]):
 
     BINDINGS = [Binding("escape", "close_modal", "Close")]
 
-    def __init__(self, survey: Survey, bib_path: Path, **kw: Any) -> None:
+    def __init__(self, survey: Survey, bib_path: Path, fetch_all_callback: Any = None, **kw: Any) -> None:
         super().__init__(**kw)
         self._survey = survey
         self._bib_path = bib_path
+        self._fetch_all_callback = fetch_all_callback
 
     def compose(self) -> ComposeResult:
         with Vertical(id="modal-dialog"):
@@ -284,7 +284,9 @@ class FetchProgressModal(ModalScreen[None]):
             yield ProgressBar(total=100, id="fetch-progress")
             yield Label("", id="counter-label")
             yield Log(id="fetch-log", max_lines=500)
-            yield Button("Close", id="btn-close", disabled=True)
+            with Horizontal(id="modal-buttons"):
+                yield Button("Close", id="btn-close", disabled=True)
+                yield Button("Fetch Meta for All", id="btn-fetch-all", disabled=False)
 
     def on_mount(self) -> None:
         self._run_fetch()
@@ -389,6 +391,13 @@ class FetchProgressModal(ModalScreen[None]):
 
     @on(Button.Pressed, "#btn-close")
     def _on_close(self) -> None:
+        self.dismiss(None)
+
+    @on(Button.Pressed, "#btn-fetch-all")
+    def _on_fetch_all(self) -> None:
+        """Fetch titles for all surveys (not just this one)."""
+        if self._fetch_all_callback:
+            self._fetch_all_callback()
         self.dismiss(None)
 
     def action_close_modal(self) -> None:
@@ -559,13 +568,14 @@ def _classify_ieee_url(url: str) -> dict[str, str]:
                 "pdf_url": url,
             }
 
-    # Standard document URL: /document/XXXXX
+    # Standard document URL: /document/XXXXX  or /document/XXXXX/references#...
     if "/document/" in path:
-        doc_id = path.rstrip("/").rsplit("/document/", 1)[-1]
+        after = path.rsplit("/document/", 1)[-1]
+        doc_id = after.split("/")[0]  # strip /references etc.
         return {
             "type": "survey",
             "doc_id": doc_id,
-            "canonical_url": url,
+            "canonical_url": f"https://ieeexplore.ieee.org/document/{doc_id}",
             "pdf_url": "",
         }
 
@@ -715,24 +725,43 @@ class PDFDownloadModal(ModalScreen[None]):
 class SurveyPickerModal(ModalScreen[str | None]):
     """Let the user pick which survey to operate on."""
 
-    BINDINGS = [Binding("escape", "cancel", "Cancel")]
+    BINDINGS = [
+        Binding("escape", "cancel", "Cancel"),
+        Binding("up", "focus_prev", "Up"),
+        Binding("down", "focus_next", "Down"),
+        Binding("enter", "select_focused", "Select"),
+    ]
 
     def __init__(self, surveys: list[Survey], **kw: Any) -> None:
         super().__init__(**kw)
         self._surveys = surveys
+        # Map sanitized widget IDs back to real survey IDs
+        self._id_map: dict[str, str] = {}
+        self._buttons: list[Button] = []
 
     def compose(self) -> ComposeResult:
         with Vertical(id="modal-dialog"):
             yield Label("Select a Survey", id="modal-title")
-            for s in self._surveys:
-                yield Button(s.name or s.source, id=f"pick-{s.id}", classes="survey-pick-btn")
+            with VerticalScroll(id="survey-scroll"):
+                for i, s in enumerate(self._surveys):
+                    widget_id = f"pick-{i}"
+                    self._id_map[widget_id] = s.id
+                    btn = Button(s.name or s.source, id=widget_id, classes="survey-pick-btn")
+                    self._buttons.append(btn)
+                    yield btn
             yield Button("Cancel", id="btn-cancel")
+
+    def on_mount(self) -> None:
+        # Focus the first survey button
+        if self._buttons:
+            self._buttons[0].focus()
 
     @on(Button.Pressed, ".survey-pick-btn")
     def _on_pick(self, event: Button.Pressed) -> None:
-        sid = event.button.id
-        if sid and sid.startswith("pick-"):
-            self.dismiss(sid.removeprefix("pick-"))
+        widget_id = event.button.id or ""
+        survey_id = self._id_map.get(widget_id)
+        if survey_id:
+            self.dismiss(survey_id)
 
     @on(Button.Pressed, "#btn-cancel")
     def _on_cancel(self) -> None:
@@ -740,6 +769,22 @@ class SurveyPickerModal(ModalScreen[str | None]):
 
     def action_cancel(self) -> None:
         self.dismiss(None)
+    
+    def action_focus_prev(self) -> None:
+        """Focus previous survey button."""
+        self.screen.focus_previous()
+    
+    def action_focus_next(self) -> None:
+        """Focus next survey button."""
+        self.screen.focus_next()
+    
+    def action_select_focused(self) -> None:
+        """Select the currently focused button."""
+        focused = self.screen.focused
+        if isinstance(focused, Button) and focused.id and focused.id.startswith("pick-"):
+            survey_id = self._id_map.get(focused.id)
+            if survey_id:
+                self.dismiss(survey_id)
 
 
 # ── Article List Screen (drill-down) ─────────────────────────
@@ -863,11 +908,11 @@ class BibliographyApp(App[None]):
     #button-bar {
         dock: bottom;
         height: auto;
-        max-height: 10;
+        max-height: 7;
         margin-bottom: 1;
         padding: 0 1;
         layout: grid;
-        grid-size: 5 3;
+        grid-size: 5 2;
         grid-gutter: 0 1;
     }
 
@@ -914,6 +959,12 @@ class BibliographyApp(App[None]):
         margin: 1 0;
     }
 
+    #survey-scroll {
+        height: 20;
+        border: solid $primary;
+        margin: 1 0;
+    }
+
     #article-table {
         height: 1fr;
         margin: 1 0;
@@ -933,8 +984,7 @@ class BibliographyApp(App[None]):
         Binding("v", "view_articles", "View Articles"),
         Binding("c", "check", "Completeness"),
         Binding("e", "edit_json", "Edit JSON"),
-        Binding("n", "rename_surveys", "Rename Snake"),
-        Binding("x", "clear_surveys", "Clear All"),
+        Binding("x", "delete_survey", "Delete"),
         Binding("r", "refresh", "Refresh"),
         Binding("q", "quit", "Quit"),
     ]
@@ -966,7 +1016,7 @@ class BibliographyApp(App[None]):
             yield Button("View Articles", id="btn-view-articles")
             yield Button("Completeness", id="btn-check")
             yield Button("Edit JSON", id="btn-edit")
-            yield Button("Rename Snake", id="btn-rename")
+            yield Button("Delete", id="btn-delete", variant="error")
             yield Button("Refresh", id="btn-refresh")
             yield Button("Quit", id="btn-quit", variant="error")
         yield Footer()
@@ -1062,109 +1112,202 @@ class BibliographyApp(App[None]):
         self.push_screen(ImportTxtModal(), callback=self._on_txt_imported)
 
     def _on_txt_imported(self, entries: list[dict[str, str]] | None) -> None:
-        """Add surveys from the parsed TXT file with deduplication."""
+        """Import surveys from TXT file one-by-one with title fetching.
+
+        Each survey is created, title is fetched, then saved before moving
+        to the next. This avoids rate-limiting and shows progress clearly.
+        """
         if not entries:
             return
-        added, skipped = 0, 0
-        pdf_queue: list[dict[str, str]] = []
-        for entry in entries:
+        
+        self.notify(
+            f"Importing {len(entries)} surveys with title fetching…",
+            severity="information",
+        )
+        # Kick off async worker to import and fetch titles sequentially
+        self._import_surveys_sequentially(entries)
+
+    @work(exclusive=True)
+    async def _import_surveys_sequentially(self, entries: list[dict[str, str]]) -> None:
+        """Import surveys one-by-one, fetch title for each, save, then next.
+        
+        Ensures no rate-limiting and clear sequential progress.
+        """
+        added, skipped, queued = 0, 0, 0
+        
+        for i, entry in enumerate(entries, start=1):
             source = entry["source"]
             name = entry.get("name", "")
+            pdf_url = entry.get("pdf_url", "")
+            
+            # Skip if already exists
             if self.bib.find_survey(source):
                 skipped += 1
                 continue
+            
+            # Create survey with placeholder name
             survey = Survey(
-                id=source, name=name, source=source, date_added=date.today(),
+                id=source, name=name, source=source,
+                date_added=date.today(), pdf_url=pdf_url,
             )
             self.bib.surveys.append(survey)
             added += 1
-            if entry.get("pdf_url"):
-                pdf_queue.append({
-                    "survey_id": source,
-                    "pdf_url": entry["pdf_url"],
-                    "doc_id": entry.get("doc_id", ""),
-                })
-        if added:
+            
+            if pdf_url:
+                queued += 1
+            
+            # Try to fetch real title immediately
+            if name.startswith("ieee_") and source.startswith("http"):
+                try:
+                    self.notify(
+                        f"[{i}/{len(entries)}] Fetching title for {source[:50]}…",
+                        severity="information",
+                    )
+                    meta = await fetch_ieee_meta(source)
+                    title = meta.get("title", "")
+                    if title:
+                        real_name = _to_snake_name(title)
+                        if real_name:
+                            survey.name = real_name
+                            self.notify(
+                                f"  ✓ Renamed: {real_name[:50]}",
+                                severity="information",
+                            )
+                    await asyncio.sleep(10.0)  # Rate limit between fetches
+                except Exception as exc:
+                    self.notify(
+                        f"  ⚠ Could not fetch title: {exc}",
+                        severity="warning",
+                    )
+            
+            # Save after each survey
             storage.save(self.bib, self.bib_path)
             self._refresh_dashboard()
-        msg = f"Imported {added} surveys ({skipped} duplicates skipped)"
-        if pdf_queue:
-            msg += f", downloading {len(pdf_queue)} PDFs\u2026"
-        self.notify(msg, severity="information" if added else "warning")
-        if pdf_queue:
-            self._download_import_pdfs(pdf_queue)
+        
+        # Final summary
+        parts = [f"Imported {added} surveys"]
+        if skipped:
+            parts.append(f"{skipped} duplicates skipped")
+        if queued:
+            parts.append(f"{queued} PDFs queued for download")
+        self.notify(", ".join(parts), severity="information" if added else "warning")
 
     @work(exclusive=True)
-    async def _download_import_pdfs(self, entries: list[dict[str, str]]) -> None:
-        """Download PDFs from direct/stamp URLs identified during TXT import."""
+    async def _fetch_imported_titles(self) -> None:
+        """Fetch real titles + DOIs from IEEE for surveys still named ieee_XXXXX.
+
+        Fully decoupled from PDF downloads — only touches survey names.
+        Uses exclusive=True to prevent races with other workers.
+        Sequential fetching with 10s delay between each URL (IEEE robots.txt).
+        """
+        to_rename = [
+            s.id for s in self.bib.surveys
+            if s.name.startswith("ieee_") and s.source.startswith("http")
+        ]
+        if not to_rename:
+            self.notify("All surveys already have titles", severity="information")
+            return
+
+        self.notify(
+            f"Fetching titles for {len(to_rename)} surveys (10s delay between URLs)…",
+            severity="information",
+        )
+        renamed, failed = 0, 0
+        for i, survey_id in enumerate(to_rename, start=1):
+            survey = self.bib.find_survey(survey_id)
+            if not survey:
+                continue
+            
+            # Log start of fetch
+            self.notify(f"[{i}/{len(to_rename)}] Fetching {survey.source[:60]}…", severity="information")
+            
+            try:
+                meta = await fetch_ieee_meta(survey.source)
+                title = meta.get("title", "")
+                if title:
+                    new_name = _to_snake_name(title)
+                    # Re-lookup right before saving (race-safe)
+                    survey = self.bib.find_survey(survey_id)
+                    if survey and new_name:
+                        survey.name = new_name
+                        storage.save(self.bib, self.bib_path)
+                        renamed += 1
+                        self.notify(f"  ✓ Renamed to: {new_name[:50]}", severity="information")
+                else:
+                    failed += 1
+                    self.notify(f"  ⚠ No title returned (empty response)", severity="warning")
+            except Exception as exc:
+                failed += 1
+                error_msg = str(exc)
+                self.notify(f"  ✗ Error: {error_msg}", severity="error")
+            
+            # Always delay AFTER each URL (including failures) to respect rate limits
+            if i < len(to_rename):
+                await asyncio.sleep(10.0)
+        
+        self._refresh_dashboard()
+        parts = [f"Renamed {renamed}/{len(to_rename)} surveys"]
+        if failed:
+            parts.append(f"{failed} failed")
+        self.notify(", ".join(parts), severity="information")
+
+    @work(exclusive=True)
+    async def _download_survey_pdf(self, survey_id: str) -> None:
+        """Download a single queued survey PDF (from stamp/direct URL)."""
         from .scraper import _safe_filename
+
+        survey = self.bib.find_survey(survey_id)
+        if not survey or not survey.pdf_url:
+            return
 
         pdf_dir = Path("bibliography/pdfs")
         pdf_dir.mkdir(parents=True, exist_ok=True)
-        downloaded = 0
-        async with httpx.AsyncClient(
-            timeout=60,
-            follow_redirects=True,
-            headers={"User-Agent": "BibManager/1.0 (mailto:student@example.com)"},
-        ) as client:
-            for entry in entries:
-                try:
-                    resp = await client.get(entry["pdf_url"])
-                    if resp.status_code == 200:
-                        ct = (resp.headers.get("content-type") or "").lower()
-                        ext = ".pdf" if "pdf" in ct else ".bin"
-                        dest = pdf_dir / f"survey_{_safe_filename(entry['doc_id'])}{ext}"
-                        dest.write_bytes(resp.content)
-                        survey = self.bib.find_survey(entry["survey_id"])
-                        if survey:
-                            survey.local_path = str(dest)
-                        downloaded += 1
-                except Exception:
-                    pass
-                await asyncio.sleep(0.5)
-        if downloaded:
-            storage.save(self.bib, self.bib_path)
-            self._refresh_dashboard()
-        self.notify(
-            f"Downloaded {downloaded}/{len(entries)} survey PDFs",
-            severity="information",
-        )
+        self.notify(f"Downloading PDF for {survey.name}…", severity="information")
 
-    def action_rename_surveys(self) -> None:
-        """Rename all surveys to snake_case based on their IEEE page titles."""
-        self._do_rename_surveys()
+        try:
+            async with httpx.AsyncClient(
+                timeout=60,
+                follow_redirects=True,
+                headers={"User-Agent": "BibManager/1.0 (mailto:student@example.com)"},
+            ) as client:
+                resp = await client.get(survey.pdf_url)
+                if resp.status_code == 200:
+                    ct = (resp.headers.get("content-type") or "").lower()
+                    ext = ".pdf" if "pdf" in ct else ".bin"
+                    doc_part = survey.source.rsplit("/", 1)[-1]
+                    dest = pdf_dir / f"survey_{_safe_filename(doc_part)}{ext}"
+                    dest.write_bytes(resp.content)
+                    # Re-lookup before saving
+                    survey = self.bib.find_survey(survey_id)
+                    if survey:
+                        survey.local_path = str(dest)
+                        survey.pdf_url = ""  # clear queue
+                        storage.save(self.bib, self.bib_path)
+                    self._refresh_dashboard()
+                    self.notify(f"PDF saved: {dest.name}", severity="information")
+                else:
+                    self.notify(
+                        f"PDF download failed: HTTP {resp.status_code}",
+                        severity="error",
+                    )
+        except Exception as exc:
+            self.notify(f"PDF download failed: {exc}", severity="error")
 
-    def action_clear_surveys(self) -> None:
-        """Delete all surveys from the bibliography for fresh reimport."""
-        if not self.bib.surveys:
-            self.notify("No surveys to delete", severity="warning")
+    def action_delete_survey(self) -> None:
+        """Delete a single survey from the bibliography."""
+        self._pick_survey_then(self._delete_survey)
+
+    def _delete_survey(self, survey_id: str) -> None:
+        """Delete the selected survey and refresh."""
+        survey = self.bib.find_survey(survey_id)
+        if not survey:
+            self.notify("Survey not found", severity="error")
             return
-        count = len(self.bib.surveys)
-        self.bib.surveys.clear()
+        name = survey.name or survey.source
+        self.bib.surveys = [s for s in self.bib.surveys if s.id != survey_id]
         storage.save(self.bib, self.bib_path)
         self._refresh_dashboard()
-        self.notify(f"Deleted {count} surveys — ready for reimport", severity="information")
-
-    @work(exclusive=True)
-    async def _do_rename_surveys(self) -> None:
-        renamed = 0
-        for survey in self.bib.surveys:
-            if not survey.source.startswith("http"):
-                continue
-            try:
-                title = await fetch_ieee_title(survey.source)
-                if title:
-                    new_name = _to_snake_name(title)
-                    if new_name and new_name != survey.name:
-                        survey.name = new_name
-                        renamed += 1
-                await asyncio.sleep(_IEEE_DELAY_RENAME)
-            except Exception:
-                pass
-        if renamed:
-            storage.save(self.bib, self.bib_path)
-            self._refresh_dashboard()
-        self.notify(f"Renamed {renamed} surveys to snake_case", severity="information")
+        self.notify(f"Deleted: {name}", severity="information")
 
     # ── survey picking helpers ───────────────────────────────
 
@@ -1187,7 +1330,11 @@ class BibliographyApp(App[None]):
             self.notify(_MSG_SURVEY_NOT_FOUND, severity="error")
             return
         self.push_screen(
-            FetchProgressModal(survey, self.bib_path),
+            FetchProgressModal(
+                survey, 
+                self.bib_path,
+                fetch_all_callback=self._fetch_imported_titles,
+            ),
             callback=lambda _: self._refresh_dashboard(),
         )
 
@@ -1195,6 +1342,10 @@ class BibliographyApp(App[None]):
         survey = self.bib.find_survey(survey_id)
         if not survey:
             self.notify(_MSG_SURVEY_NOT_FOUND, severity="error")
+            return
+        # Check for queued survey-level PDF first
+        if survey.pdf_url and not survey.local_path:
+            self._download_survey_pdf(survey_id)
             return
         downloadable = [a for a in survey.articles if a.pdf_url and not a.local_path]
         if not downloadable:
@@ -1249,9 +1400,9 @@ class BibliographyApp(App[None]):
     def _btn_refresh(self) -> None:
         self.action_refresh()
 
-    @on(Button.Pressed, "#btn-rename")
-    def _btn_rename(self) -> None:
-        self.action_rename_surveys()
+    @on(Button.Pressed, "#btn-delete")
+    def _btn_delete(self) -> None:
+        self.action_delete_survey()
 
     @on(Button.Pressed, "#btn-quit")
     def _btn_quit(self) -> None:

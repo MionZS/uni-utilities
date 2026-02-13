@@ -1,0 +1,690 @@
+{
+  "project": {
+    "title": "",
+    "author": "",
+    "abstract": "",
+    "keywords": [],
+    "my_article_doi": ""
+  },
+  "surveys": [
+    {
+      "id": "https://ieeexplore.ieee.org/document/8676311",
+      "name": "software_defined_networks_based_smart_grid_communication_a_comprehensive_survey",
+      "source": "https://ieeexplore.ieee.org/document/8676311",
+      "date_added": "2026-02-12",
+      "total_references_expected": 30,
+      "relevance_score": 0.0,
+      "pdf_url": "",
+      "local_path": "",
+      "articles": [
+        {
+          "doi": "10.1109/SURV.2011.101911.00087",
+          "title": "Smart grid—The new and improved power grid: A survey",
+          "authors": [
+            "X. Fang",
+            "S. Misra",
+            "G. Xue",
+            "and D. Yang"
+          ],
+          "year": 2012,
+          "venue": "IEEE Communications Surveys &amp; Tutorials",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Smart+grid%E2%80%94The+new+and+improved+power+grid%3A+A+survey&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/6099519",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/TII.2017.2756625",
+          "title": "Guest editorial special section on smart grid and renewable energy resources: Information and communication technologies with industry perspective",
+          "authors": [
+            "M. H. Rehmani",
+            "M. Reisslein",
+            "A. Rachedi",
+            "M. Erol-Kantarci",
+            "and M. Radenkovic"
+          ],
+          "year": 2017,
+          "venue": "IEEE Transactions on Industrial Informatics",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Guest+editorial+special+section+on+smart+grid+and+renewable+energy+resources%3A+Information+and+communication+technologies+with+industry+perspective&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/8167042",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/ACCESS.2016.2516158",
+          "title": "IEEE access special section editorial smart grids: A hub of interdisciplinary research",
+          "authors": [
+            "M. H. Rehmani",
+            "M. E. Kantarci",
+            "A. Rachedi",
+            "M. Radenkovic",
+            "and M. Reisslein"
+          ],
+          "year": 2015,
+          "venue": "IEEE Access",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=IEEE+access+special+section+editorial+smart+grids%3A+A+hub+of+interdisciplinary+research&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/7389481",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/MPE.2016.2637122",
+          "title": "Achieving a 100% renewable grid: Operating electric power systems with extremely high levels of variable renewable energy",
+          "authors": [
+            "B. Kroposki"
+          ],
+          "year": 2017,
+          "venue": "IEEE Power and Energy Magazine",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Achieving+a+100%25+renewable+grid%3A+Operating+electric+power+systems+with+extremely+high+levels+of+variable+renewable+energy&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/7866938",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/MPE.2014.2301515",
+          "title": "A road map to integration: Perspectives on smart grid development",
+          "authors": [
+            "H. Farhangi"
+          ],
+          "year": 2014,
+          "venue": "IEEE Power and Energy Magazine",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=A+road+map+to+integration%3A+Perspectives+on+smart+grid+development&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/6802465",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1016/j.joule.2017.07.005",
+          "title": "100% clean and renewable wind, water, and sunlight all-sector energy roadmaps for 139 countries of the world",
+          "authors": [
+            "M. Z. Jacobson"
+          ],
+          "year": 2017,
+          "venue": "Joule",
+          "abstract": "",
+          "crossref_url": "https://doi.org/10.1016/j.joule.2017.07.005",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=100%25+clean+and+renewable+wind%2C+water%2C+and+sunlight+all-sector+energy+roadmaps+for+139+countries+of+the+world&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/MNET.2011.6033032",
+          "title": "Communication systems for grid integration of renewable energy resources",
+          "authors": [
+            "F. R. Yu",
+            "W. Xiao",
+            "and P. Choudhury"
+          ],
+          "year": 2011,
+          "venue": "IEEE Network",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Communication+systems+for+grid+integration+of+renewable+energy+resources&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/6033032",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/MWC.2010.5490972",
+          "title": "Smart grids for green communications [industry perspectives]",
+          "authors": [
+            "B. Heile"
+          ],
+          "year": 2010,
+          "venue": "IEEE Wireless Communications",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Smart+grids+for+green+communications+%5Bindustry+perspectives%5D&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/5490972",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/JPROC.2013.2270172",
+          "title": "Electric energy management in the smart home: Perspectives on enabling technologies and consumer behavior",
+          "authors": [
+            "A. Zipperer"
+          ],
+          "year": 2013,
+          "venue": "Proceedings of the IEEE",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Electric+energy+management+in+the+smart+home%3A+Perspectives+on+enabling+technologies+and+consumer+behavior&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/6573315",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/TSG.2012.2227516",
+          "title": "Simulative comparison of multiprotocol label switching and OpenFlow network technologies for transmission operations",
+          "authors": [
+            "A. Sydney",
+            "J. Nutaro",
+            "C. Scoglio",
+            "D. Gruenbacher",
+            "and N. Schulz"
+          ],
+          "year": 2013,
+          "venue": "IEEE Transactions on Smart Grid",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Simulative+comparison+of+multiprotocol+label+switching+and+OpenFlow+network+technologies+for+transmission+operations&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/6476055",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1016/j.jpdc.2017.07.002",
+          "title": "SDN-based energy management scheme for sustainability of data centers: An analysis on renewable energy sources and electric vehicles participation",
+          "authors": [
+            "G. S. Aujla",
+            "N. Kumar"
+          ],
+          "year": 2017,
+          "venue": "Journal of Parallel and Distributed Computing",
+          "abstract": "",
+          "crossref_url": "https://doi.org/10.1016/j.jpdc.2017.07.002",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=SDN-based+energy+management+scheme+for+sustainability+of+data+centers%3A+An+analysis+on+renewable+energy+sources+and+electric+vehicles+participation&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/JSAC.2013.131207",
+          "title": "Data centers as software defined networks: Traffic redundancy elimination with wireless cards at routers",
+          "authors": [
+            "Y. Cui",
+            "S. Xiao",
+            "C. Liao",
+            "I. Stojmenovic",
+            "and M. Li"
+          ],
+          "year": 2013,
+          "venue": "IEEE Journal on Selected Areas in Communications",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Data+centers+as+software+defined+networks%3A+Traffic+redundancy+elimination+with+wireless+cards+at+routers&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/6678112",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/MCOM.2014.6852092",
+          "title": "Design considerations for managing wide area software defined networks",
+          "authors": [
+            "R. Ahmed",
+            "R. Boutaba"
+          ],
+          "year": 2014,
+          "venue": "IEEE Communications Magazine",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Design+considerations+for+managing+wide+area+software+defined+networks&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/6852092",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/TETC.2015.2478757",
+          "title": "Software-defined network virtualization platform for enterprise network resource management",
+          "authors": [
+            "J.-L. Chen",
+            "Y.-W. Ma",
+            "H.-Y. Kuo",
+            "C.-S. Yang",
+            "and W.-C. Hung"
+          ],
+          "year": 2016,
+          "venue": "IEEE Transactions on Emerging Topics in Computing",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Software-defined+network+virtualization+platform+for+enterprise+network+resource+management&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/7274340",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/MCOM.2017.1600414CM",
+          "title": "An SDN/NFV-enabled enterprise network architecture offering fine-grained security policy enforcement",
+          "authors": [
+            "C. Lorenz"
+          ],
+          "year": 2017,
+          "venue": "IEEE Communications Magazine",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=An+SDN%2FNFV-enabled+enterprise+network+architecture+offering+fine-grained+security+policy+enforcement&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/7828267",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/COMST.2016.2586999",
+          "title": "Software defined optical networks (SDONs): A comprehensive survey",
+          "authors": [
+            "A. S. Thyagaturu",
+            "A. Mercian",
+            "M. P. McGarry",
+            "M. Reisslein",
+            "and W. Kellerer"
+          ],
+          "year": 2016,
+          "venue": "IEEE Communications Surveys &amp; Tutorials",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Software+defined+optical+networks+%28SDONs%29%3A+A+comprehensive+survey&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/7503119",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/COMST.2016.2571118",
+          "title": "Wireless software defined networking: A survey and taxonomy",
+          "authors": [
+            "I. T. Haque",
+            "N. Abu-Ghazaleh"
+          ],
+          "year": 2016,
+          "venue": "IEEE Communications Surveys &amp; Tutorials",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Wireless+software+defined+networking%3A+A+survey+and+taxonomy&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/7473831",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/ACCESS.2017.2666200",
+          "title": "A survey on software-defined wireless sensor networks: Challenges and design requirements",
+          "authors": [
+            "H. I. Kobo",
+            "A. M. Abu-Mahfouz",
+            "and G. P. Hancke"
+          ],
+          "year": 2017,
+          "venue": "IEEE Access",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=A+survey+on+software-defined+wireless+sensor+networks%3A+Challenges+and+design+requirements&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/7847327",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1016/j.adhoc.2016.02.016",
+          "title": "SoftWater: Software-defined networking for next-generation underwater communication systems",
+          "authors": [
+            "I. F. Akyildiz",
+            "and S.-C. Lin"
+          ],
+          "year": 2016,
+          "venue": "Ad Hoc Networks",
+          "abstract": "",
+          "crossref_url": "https://doi.org/10.1016/j.adhoc.2016.02.016",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=SoftWater%3A+Software-defined+networking+for+next-generation+underwater+communication+systems&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/EI2.2017.8245292",
+          "title": "Communications in distributed smart grid control: Software-defined vs. legacy networks",
+          "authors": [
+            "N. Dorsch",
+            "F. Kurtz",
+            "and C. Wietfeld"
+          ],
+          "year": 2017,
+          "venue": "2017 IEEE Conference on Energy Internet and Energy System Integration (EI2)",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Communications+in+distributed+smart+grid+control%3A+Software-defined+vs.+legacy+networks&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/8245292",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "UNRESOLVED-21",
+          "title": "",
+          "authors": [],
+          "year": 2016,
+          "venue": "",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Network-Aware+QoS+Routing+for+Smart+Grids+Using+Software+Defined+Networks&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "DOI could not be resolved automatically",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/GLOCOM.2016.7841813",
+          "title": "Enhanced fast failover for software-defined smart grid communication networks",
+          "authors": [
+            "N. Dorsch",
+            "F. Kurtz",
+            "F. Girke",
+            "and C. Wietfeld"
+          ],
+          "year": 2016,
+          "venue": "2016 IEEE Global Communications Conference (GLOBECOM)",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Enhanced+fast+failover+for+software-defined+smart+grid+communication+networks&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/7841813",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/ICDCSW.2017.20",
+          "title": "A security framework for SDN-enabled smart power grids",
+          "authors": [
+            "U. Ghosh",
+            "and S. Shetty"
+          ],
+          "year": 2017,
+          "venue": "2017 IEEE 37th International Conference on Distributed Computing Systems Workshops (ICDCSW)",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=A+security+framework+for+SDN-enabled+smart+power+grids&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/7979803",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/TSG.2016.2593021",
+          "title": "Self-healing attack-resilient PMU network for power system operation",
+          "authors": [
+            "H. Lin"
+          ],
+          "year": 2018,
+          "venue": "IEEE Transactions on Smart Grid",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Self-healing+attack-resilient+PMU+network+for+power+system+operation&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/7523444",
+          "pdf_url": "http://ieeexplore.ieee.org/ielaam/5165411/8341523/7523444-aam.pdf",
+          "local_path": "bibliography\\pdfs\\10.1109_TSG.2016.2593021.bin",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/SURV.2011.072811.00089",
+          "title": "The progressive smart grid system from both power and communications aspects",
+          "authors": [
+            "C.-H. Lo",
+            "N. Ansari"
+          ],
+          "year": 2012,
+          "venue": "IEEE Communications Surveys &amp; Tutorials",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=The+progressive+smart+grid+system+from+both+power+and+communications+aspects&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/5989902",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/SURV.2014.042914.00001",
+          "title": "Editorial: IEEE communications surveys tutorials—Special section on energy and smart grid",
+          "authors": [
+            "H. Mohsenian-Rad"
+          ],
+          "year": 2014,
+          "venue": "IEEE Communications Surveys &amp; Tutorials",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Editorial%3A+IEEE+communications+surveys++tutorials%E2%80%94Special+section+on+energy+and+smart+grid&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/6880449",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1016/j.future.2011.04.014",
+          "title": "A survey of communication/networking in smart grids",
+          "authors": [
+            "J. Gao",
+            "Y. Xiao",
+            "J. Liu",
+            "W. Liang",
+            "and C. L. P. Chen"
+          ],
+          "year": 2012,
+          "venue": "Future Generation Computer Systems",
+          "abstract": "",
+          "crossref_url": "https://doi.org/10.1016/j.future.2011.04.014",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=A+survey+of+communication%2Fnetworking+in+smart+grids&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/SURV.2012.021312.00034",
+          "title": "A survey on smart grid communication infrastructures: Motivations, requirements and challenges",
+          "authors": [
+            "Y. Yan",
+            "Y. Qian",
+            "H. Sharif",
+            "and D. Tipper"
+          ],
+          "year": 2013,
+          "venue": "IEEE Communications Surveys &amp; Tutorials",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=A+survey+on+smart+grid+communication+infrastructures%3A+Motivations%2C+requirements+and+challenges&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/6157575",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1016/j.comnet.2011.07.010",
+          "title": "A survey on the communication architectures in smart grid",
+          "authors": [
+            "W. Wang",
+            "Y. Xu",
+            "and M. Khanna"
+          ],
+          "year": 2011,
+          "venue": "Computer Networks",
+          "abstract": "",
+          "crossref_url": "https://doi.org/10.1016/j.comnet.2011.07.010",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=A+survey+on+the+communication+architectures+in+smart+grid&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        },
+        {
+          "doi": "10.1109/SURV.2014.052914.00130",
+          "title": "Communication infrastructure design in cyber physical systems with applications in smart grids: A hybrid system framework",
+          "authors": [
+            "H. Li",
+            "A. Dimitrovski",
+            "J. B. Song",
+            "Z. Han",
+            "and L. Qian"
+          ],
+          "year": 2014,
+          "venue": "IEEE Communications Surveys &amp; Tutorials",
+          "abstract": "",
+          "crossref_url": "",
+          "google_scholar_url": "https://scholar.google.com/scholar?as_q=Communication+infrastructure+design+in+cyber+physical+systems+with+applications+in+smart+grids%3A+A+hybrid+system+framework&as_occt=title&hl=en&as_sdt=0%2C31",
+          "ieee_url": "/document/6823238",
+          "pdf_url": "",
+          "local_path": "",
+          "accessed_date": "2026-02-12",
+          "relevance_score": 0.0,
+          "notes": "",
+          "manually_edited": false
+        }
+      ]
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/10719361",
+      "name": "integration_of_blockchain_technology_in_smart_grids_for_enhancing_security_efficiency_and_resilience_a_comprehensive_survey",
+      "source": "https://ieeexplore.ieee.org/document/10719361",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "pdf_url": "",
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/6225715",
+      "name": "initial_survey_of_smart_grid_activities_in_the_norwegian_energy_sector_use_cases_industrial_challenges_and_implications_for_research",
+      "source": "https://ieeexplore.ieee.org/document/6225715",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "pdf_url": "",
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/8984489",
+      "name": "survey_analysis_on_existing_tools_and_services_for_grid_and_market_stakeholders_and_requirements_to_improve_tsodso_coordination",
+      "source": "https://ieeexplore.ieee.org/document/8984489",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "pdf_url": "",
+      "local_path": "",
+      "articles": []
+    },
+    {
+      "id": "https://ieeexplore.ieee.org/document/11063250",
+      "name": "ieee_11063250",
+      "source": "https://ieeexplore.ieee.org/document/11063250",
+      "date_added": "2026-02-12",
+      "total_references_expected": 0,
+      "relevance_score": 0.0,
+      "pdf_url": "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=11063250",
+      "local_path": "",
+      "articles": []
+    }
+  ]
+}
